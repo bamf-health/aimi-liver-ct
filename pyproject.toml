@@ -9,6 +9,8 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 ipykernel = "^6.25.1"
+nnunet = "^1.7.1"
+torch = "^2.0.1"
 
 
 [tool.poetry.group.dev.dependencies]
