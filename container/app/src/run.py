@@ -171,6 +171,48 @@ def main(dicom_dir: Path, output_dir: Path):
             )
 
 
+def main_nifti(dicom_dir: Path, output_dir: Path):
+    input_niis = sorted(list(dicom_dir.rglob("*.nii.gz")))
+    nii_input_dir = Path("/tmp/nii")
+    pred_dir = Path("/tmp/pred")
+
+    input_series = []
+    # create processing file names
+    for i, input_nii in enumerate(input_niis):
+        nnunet_nii_input_file = nii_input_dir / f"scan_{i}_0000.nii.gz"  # nnunet format
+        nii_pred_file = pred_dir / f"scan_{i}.nii.gz"  # nnunet format
+        out_nii_pred_file = (
+            output_dir
+            / input_nii.parent.relative_to(dicom_dir)
+            / f"{input_nii.name}.nii.gz"
+        )
+        input_series.append(
+            (
+                input_nii,
+                nnunet_nii_input_file,
+                nii_pred_file,
+                out_nii_pred_file,
+            )
+        )
+
+    # link input niftis to nnunet niftis
+    for input_nii, nnunet_nii_input_file, _, _ in input_series:
+        nnunet_nii_input_file.parent.mkdir(parents=True, exist_ok=True)
+        nnunet_nii_input_file.symlink_to(input_nii)
+
+    # run model
+    run_model(nii_input_dir, pred_dir)
+
+    # convert nii to dicom seg
+    for series_dicom_dir, _, nii_pred_file, out_nii_pred_file in input_series:
+        if not nii_pred_file.exists():
+            print(
+                f"skipping {nii_pred_file} - {series_dicom_dir.relative_to(dicom_dir)}, does not exist"
+            )
+        else:
+            shutil.copy(nii_pred_file, out_nii_pred_file)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -183,6 +225,14 @@ if __name__ == "__main__":
         type=Path,
         help="Output directory for dicom segmentation files, folder structure of input_dicom_dir will be preserved, with each output being name of the series directory with .seg.dcm extension",
     )
+    parser.add_argument(
+        "--nifti",
+        action="store_true",
+        help="Input and Output files are nifti instead of DICOM",
+    )
 
     args = parser.parse_args()
-    main(args.input_dicom_dir, args.output_dir)
+    if args.nifti:
+        main_nifti(args.input_dicom_dir, args.output_dir)
+    else:
+        main(args.input_dicom_dir, args.output_dir)
