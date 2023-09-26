@@ -182,9 +182,7 @@ def main_nifti(dicom_dir: Path, output_dir: Path):
         nnunet_nii_input_file = nii_input_dir / f"scan_{i}_0000.nii.gz"  # nnunet format
         nii_pred_file = pred_dir / f"scan_{i}.nii.gz"  # nnunet format
         out_nii_pred_file = (
-            output_dir
-            / input_nii.parent.relative_to(dicom_dir)
-            / f"{input_nii.name}.nii.gz"
+            output_dir / input_nii.parent.relative_to(dicom_dir) / input_nii.name
         )
         input_series.append(
             (
