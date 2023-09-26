@@ -165,3 +165,4 @@ training_data/
 nnunet_data/
 *.dcm
 *.nii.gz
+MSD/
