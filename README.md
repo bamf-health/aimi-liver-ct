@@ -6,7 +6,7 @@ The [model_performance](model_performance.ipynb) notebook contains the code to e
 
 ## Running the model
 
-The pretrained model weights are available online. The simpliest way to use the model is to build and run the docker container.
+The pretrained model weights are [available at zenodo](https://doi.org/10.5281/zenodo.8270230). The simpliest way to use the model is to build and run the docker container.
 
 ### Build container from pretrained weights
 
@@ -28,8 +28,9 @@ docker run --gpus all -v /path/to/input/dicoms:/data/input -v /path/for/output/d
 There is an optional `--nifti` flag that will take nifti files as input and output.
 
 #### Run inference on IDC Collections
+This model was run on CT scans from the TCGA-LIHC collection. The AI segmentations and corrections by a radioloist for 10% of the dataset are available in the liver-ct.zip file on the [zenodo record](https://doi.org/10.5281/zenodo.8345959).
 
-TODO
+- [ ] TODO: add notebook for downloading & running model on idc collections
 
 #### Run inference on Medical Decathlon
 
