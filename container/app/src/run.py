@@ -122,7 +122,7 @@ def convert_nii_to_dcm_seg(
     return res.returncode == 0
 
 
-def main(dicom_dir: Path, output_dir: Path):
+def main_dicom(dicom_dir: Path, output_dir: Path, dicom_seg_meta_json: Path):
     series_dirs = find_input_series(dicom_dir)
     nii_input_dir = Path("/tmp/nii")
     pred_dir = Path("/tmp/pred")
@@ -167,7 +167,7 @@ def main(dicom_dir: Path, output_dir: Path):
                 nii_pred_file,
                 dcm_pred_file,
                 series_dicom_dir,
-                Path("/app/ai-dicom-seg-meta.json"),
+                dicom_seg_meta_json,
             )
 
 
@@ -228,9 +228,15 @@ if __name__ == "__main__":
         action="store_true",
         help="Input and Output files are nifti instead of DICOM",
     )
+    parser.add_argument(
+        "--dicom_seg_meta_json",
+        type=Path,
+        default="/app/dicom_seg_meta.json",
+        help="Path to dicom_seg_meta.json file",
+    )
 
     args = parser.parse_args()
     if args.nifti:
         main_nifti(args.input_dicom_dir, args.output_dir)
     else:
-        main(args.input_dicom_dir, args.output_dir)
+        main_dicom(args.input_dicom_dir, args.output_dir, args.dicom_seg_meta_json)
