@@ -171,18 +171,20 @@ def main_dicom(dicom_dir: Path, output_dir: Path, dicom_seg_meta_json: Path):
             )
 
 
-def main_nifti(dicom_dir: Path, output_dir: Path):
-    input_niis = sorted(list(dicom_dir.rglob("*.nii.gz")))
-    nii_input_dir = Path("/tmp/nii")
-    pred_dir = Path("/tmp/pred")
+def main_nifti(input_dir: Path, output_dir: Path):
+    input_niis = sorted(list(input_dir.rglob("*.nii.gz")))
+    nnunet_nii_input_dir = Path("/tmp/nii")
+    nnunet_pred_dir = Path("/tmp/pred")
 
     input_series = []
     # create processing file names
     for i, input_nii in enumerate(input_niis):
-        nnunet_nii_input_file = nii_input_dir / f"scan_{i}_0000.nii.gz"  # nnunet format
-        nii_pred_file = pred_dir / f"scan_{i}.nii.gz"  # nnunet format
+        nnunet_nii_input_file = (
+            nnunet_nii_input_dir / f"scan_{i}_0000.nii.gz"
+        )  # nnunet format
+        nii_pred_file = nnunet_pred_dir / f"scan_{i}.nii.gz"  # nnunet format
         out_nii_pred_file = (
-            output_dir / input_nii.parent.relative_to(dicom_dir) / input_nii.name
+            output_dir / input_nii.parent.relative_to(input_dir) / input_nii.name
         )
         input_series.append(
             (
@@ -199,13 +201,13 @@ def main_nifti(dicom_dir: Path, output_dir: Path):
         nnunet_nii_input_file.symlink_to(input_nii)
 
     # run model
-    run_model(nii_input_dir, pred_dir)
+    run_model(nnunet_nii_input_dir, nnunet_pred_dir)
 
-    # convert nii to dicom seg
-    for series_dicom_dir, _, nii_pred_file, out_nii_pred_file in input_series:
+    # convert nii to output file
+    for input_nii, _, nii_pred_file, out_nii_pred_file in input_series:
         if not nii_pred_file.exists():
             print(
-                f"skipping {nii_pred_file} - {series_dicom_dir.relative_to(dicom_dir)}, does not exist"
+                f"skipping {nii_pred_file} - {input_nii.relative_to(input_dir)}, does not exist"
             )
         else:
             shutil.copy(nii_pred_file, out_nii_pred_file)
