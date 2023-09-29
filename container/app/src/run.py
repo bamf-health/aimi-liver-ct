@@ -233,7 +233,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--dicom_seg_meta_json",
         type=Path,
-        default="/app/dicom_seg_meta.json",
+        default="/app/ai-dicom-seg-meta.json",
         help="Path to dicom_seg_meta.json file",
     )
 
